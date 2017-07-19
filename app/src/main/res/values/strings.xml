@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">Find My Bus Stop</string>
+
+    <!-- Strings used for Views -->
+    <string name="address_edit_text">Enter your Address</string>
+    <string name="search_button">Go</string>
+
+    <!-- Strings used for accessing the Google Maps API -->
+    <string name="maps_url_beginning">https://maps.googleapis.com/maps/api/geocode/json?address=</string>
+    <string name="maps_url_end">,+Brockton,+MA&amp;AIzaSyAoyiZl19YIjUs7cUKwyHCZofT4xtQQER0</string>
+
+    <string name="too_close_to_school">You live too close to the school for bus access.</string>
+
+    <string-array name="school_list">
+
+        <item>Brockton High School</item>
+        <item>Ashfield Middle School</item>
+        <item>East Middle School</item>
+        <item>North Middle School</item>
+        <item>Plouffe Academy</item>
+        <item>South Middle School</item>
+        <item>West Middle School</item>
+
+        <!--
+        <item>Angelo Elementary School</item>
+        <item>Arnone Elementary School</item>
+        <item>Baker Elementary School</item>
+        <item>Barrett Russell</item>
+        <item>Brookfield Elementary School</item>
+        <item>Davis K-8 School</item>
+        <item>Downey Elementary School</item>
+        <item>George Elementary School</item>
+        <item>Hancock Elementary School</item>
+        <item>Huntington Elementary School</item>
+        <item>Kennedy Elementary School</item>
+        <item>Raymond K-5 School</item>
+        -->
+
+    </string-array>
+
+    <string name="step_one">Step One: Select your school</string>
+    <string name="step_two">Step Two: Enter your address</string>
+
+    <string name="bhs_morning_beginning">"Morning Location: "</string>
+    <string name="bhs_afternoon_beginning">"Afternoon Location: "</string>
+    <string name="bus_number">" on bus number "</string>
+    <string name="area_number">" in area "</string>
+
+    <string name="bhs_object_id">5oumuyZnvm</string>
+
+</resources>

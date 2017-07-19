@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.tailoreddevelopmentgroup.findmybusstop.MainActivity"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/busStopTextView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textColor="#000000"
+        android:textAlignment="center"/>
+
+    <TextView
+        android:id="@+id/busNumberTextView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="20sp"
+        android:textColor="#000000"
+        android:textAlignment="center"/>
+
+    <TextView
+        android:id="@+id/step_one_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/step_one"
+        android:textSize="20sp"
+        android:textColor="@color/colorPrimary"/>
+
+    <Spinner
+        android:id="@+id/school_spinner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAlignment="center"
+        android:spinnerMode="dropdown"
+        style="@android:style/Widget.Material.Light.Spinner"/>
+
+    <TextView
+        android:id="@+id/step_two_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/step_one"
+        android:textSize="20sp"
+        android:textColor="@color/colorPrimary"/>
+
+    <EditText
+        android:id="@+id/addressEditText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:ems="10"
+        android:inputType="textPostalAddress"
+        android:textSize="20sp"
+        android:hint="@string/address_edit_text"/>
+
+    <Button
+        android:id="@+id/searchButton"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorPrimary"
+        android:text="@string/search_button"
+        android:textSize="20sp"
+        android:textColor="#ffffff"/>
+
+</LinearLayout>
