@@ -16,12 +16,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseRelation;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,7 +29,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
+import java.util.HashMap;
 
 
 /*
@@ -49,15 +48,13 @@ public class MainActivity extends AppCompatActivity {
 
     Button mSearchButton;
     EditText mAddressEditText;
-    TextView mBusStopTextView;
-    TextView mAfternoonBusStopTextView;
+    TextView mMorningTextView;
+    TextView mAfternoonTextView;
     Spinner mSchoolNameSpinner;
     String mSchoolNameString;
     ParseObject mSchoolParseObject;
     ParseGeoPoint mStudentGeoPoint;
-    ParseObject mMorningBusStop;
-    ParseObject mAfternoonBusStop;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,8 +66,8 @@ public class MainActivity extends AppCompatActivity {
     private void buttonClicked () {
 
         // Reset Text Views
-        mBusStopTextView.setText("");
-        mAfternoonBusStopTextView.setText("");
+        mMorningTextView.setText("");
+        mAfternoonTextView.setText("");
 
         if (mAddressEditText.getText().toString().length() == 0) {
 
@@ -116,13 +113,12 @@ public class MainActivity extends AppCompatActivity {
         // GeoPoint of Address Entered
         mStudentGeoPoint = new ParseGeoPoint(resultArray[0], resultArray[1]);
 
-        // Query the school selected
-        ParseQuery<ParseObject> schoolQuery = ParseQuery.getQuery("School");
-        schoolQuery.whereEqualTo("name", mSchoolNameString);
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("schoolName", mSchoolNameString);
 
-        schoolQuery.findInBackground(new FindCallback<ParseObject>() {
+        ParseCloud.callFunctionInBackground("getSchool", params, new FunctionCallback<ParseObject>() {
             @Override
-            public void done(List<ParseObject> objects, ParseException e) {
+            public void done(ParseObject school, ParseException e) {
 
                 if (e != null) {
 
@@ -130,15 +126,13 @@ public class MainActivity extends AppCompatActivity {
 
                 } else {
 
-                    mSchoolParseObject = objects.get(0);
+                    mSchoolParseObject = school;
 
                     Double distanceToSchool = mStudentGeoPoint.distanceInMilesTo(mSchoolParseObject.getParseGeoPoint("location"));
 
                     if (distanceToSchool < mSchoolParseObject.getDouble("walkerRadius")) {
 
-                        searchParseDBForBusStop();
-
-                        // mBusStopTextView.setText(getResources().getString(R.string.too_close_to_school));
+                        mMorningTextView.setText(getResources().getString(R.string.too_close_to_school));
 
                     } else {
 
@@ -151,152 +145,35 @@ public class MainActivity extends AppCompatActivity {
 
     private void searchParseDBForBusStop () {
 
-        ParseRelation<ParseObject> busStopsRelation = mSchoolParseObject.getRelation("busStops");
-        final ParseRelation<ParseObject> routesRelation = mSchoolParseObject.getRelation("routes");
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("schoolName", mSchoolNameString);
+        params.put("studentLocation", mStudentGeoPoint);
 
-        // Morning Query
-        ParseQuery<ParseObject> morningBusStopQuery = busStopsRelation.getQuery();
-        morningBusStopQuery.whereNear("location", mStudentGeoPoint);
-        morningBusStopQuery.setLimit(1);
-
-        morningBusStopQuery.findInBackground(new FindCallback<ParseObject>() {
+        ParseCloud.callFunctionInBackground("getMorningStop", params, new FunctionCallback<String>() {
             @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-
+            public void done(String morning, ParseException e) {
                 if (e != null) {
-
                     e.printStackTrace();
-
                 } else {
-
-                    mMorningBusStop = objects.get(0);
-
-                    ParseQuery<ParseObject> morningRoutesQuery = routesRelation.getQuery();
-                    morningRoutesQuery.whereEqualTo("busStops", mMorningBusStop);
-
-                    morningRoutesQuery.findInBackground(new FindCallback<ParseObject>() {
-                        @Override
-                        public void done(List<ParseObject> objects, ParseException e) {
-
-                            if (e != null) {
-
-                                e.printStackTrace();
-
-                            } else {
-
-                                mBusStopTextView.setText(mMorningBusStop.getString("name") +
-                                        getResources().getString(R.string.bus_number) + objects.get(0).get("vehicle"));
-                            }
-                        }
-                    });
+                    mMorningTextView.setText(morning);
                 }
             }
         });
 
         if (mSchoolParseObject.getObjectId().equals(getResources().getString(R.string.bhs_object_id))) {
 
-            searchParseDBForBusStopBrocktonHigh();
+            ParseCloud.callFunctionInBackground("getAfternoonStop", params, new FunctionCallback<String>() {
+                @Override
+                public void done(String afternoon, ParseException e) {
+                    if (e != null) {
+                        e.printStackTrace();
+                    } else {
+                        mAfternoonTextView.setText(afternoon);
+                    }
+                }
+            });
 
         }
-    }
-
-    private void searchParseDBForBusStopBrocktonHigh () {
-
-        ParseRelation<ParseObject> busStopsRelation = mSchoolParseObject.getRelation("busStops");
-        final ParseRelation<ParseObject> routesRelation = mSchoolParseObject.getRelation("routes");
-
-        // Morning Query
-        ParseQuery<ParseObject> morningBusStopQuery = busStopsRelation.getQuery();
-        morningBusStopQuery.whereEqualTo("morning", true);
-        morningBusStopQuery.whereNear("location", mStudentGeoPoint);
-        morningBusStopQuery.setLimit(1);
-
-        morningBusStopQuery.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-
-                if (e != null) {
-
-                    e.printStackTrace();
-
-                } else {
-
-                    mMorningBusStop = objects.get(0);
-
-                    ParseQuery<ParseObject> morningRoutesQuery = routesRelation.getQuery();
-                    morningRoutesQuery.whereEqualTo("morning", true);
-                    morningRoutesQuery.whereEqualTo("busStops", mMorningBusStop);
-
-                    morningRoutesQuery.findInBackground(new FindCallback<ParseObject>() {
-                        @Override
-                        public void done(List<ParseObject> objects, ParseException e) {
-
-                            if (e != null) {
-
-                                e.printStackTrace();
-
-                            } else {
-
-                                mBusStopTextView.setText(mMorningBusStop.getString("name") +
-                                        getResources().getString(R.string.bus_number) + objects.get(0).get("vehicle"));
-                            }
-                        }
-                    });
-                }
-            }
-        });
-
-
-        ParseRelation<ParseObject> busStopsRelationAfternoon = mSchoolParseObject.getRelation("busStops");
-        final ParseRelation<ParseObject> routesRelationAfternoon = mSchoolParseObject.getRelation("routes");
-
-        // Afternoon Query
-        ParseQuery<ParseObject> afternoonBusStopQuery = busStopsRelationAfternoon.getQuery();
-        afternoonBusStopQuery.whereEqualTo("afternoon", true);
-        afternoonBusStopQuery.whereNear("location", mStudentGeoPoint);
-
-        afternoonBusStopQuery.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-
-                if (e != null) {
-
-                    e.printStackTrace();
-
-                } else {
-
-                    mAfternoonBusStop = objects.get(0);
-
-                    ParseQuery<ParseObject> afternoonRoutesQuery = routesRelationAfternoon.getQuery();
-                    afternoonRoutesQuery.whereEqualTo("morning", false);
-                    afternoonRoutesQuery.whereEqualTo("busStops", mAfternoonBusStop);
-
-                    afternoonRoutesQuery.findInBackground(new FindCallback<ParseObject>() {
-                        @Override
-                        public void done(List<ParseObject> objects, ParseException e) {
-
-                            if (e != null) {
-
-                                e.printStackTrace();
-
-                            } else {
-
-                                for (ParseObject object : objects) {
-
-                                    Log.i("VEHICLE", String.valueOf(object.get("vehicle")));
-
-                                }
-
-                                mAfternoonBusStopTextView.setText(getResources().getString(R.string.bhs_afternoon_beginning) +
-                                        mAfternoonBusStop.getString("name") +
-                                        getResources().getString(R.string.area_number) + objects.get(0).get("area") +
-                                        getResources().getString(R.string.bus_number) + objects.get(0).get("vehicle"));
-                            }
-                        }
-                    });
-                }
-            }
-        });
     }
 
     public class GetGoogleMapsData extends AsyncTask<String, Void, String> {
@@ -403,9 +280,9 @@ public class MainActivity extends AppCompatActivity {
         // Apply the listener to EditText
         mAddressEditText.setOnEditorActionListener(listener);
 
-        mBusStopTextView = (TextView) findViewById(R.id.busStopTextView);
+        mMorningTextView = (TextView) findViewById(R.id.morningBusStopTextView);
 
-        mAfternoonBusStopTextView = (TextView) findViewById(R.id.busNumberTextView);
+        mAfternoonTextView = (TextView) findViewById(R.id.afternoonBusStopTextView);
 
         initializeSpinner();
 
