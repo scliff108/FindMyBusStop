@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     String mSchoolNameString;
     ParseObject mSchoolParseObject;
     ParseGeoPoint mStudentGeoPoint;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
