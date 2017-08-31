@@ -9,9 +9,9 @@ public class Application extends android.app.Application {
         super.onCreate();
 
         Parse.initialize(new Parse.Configuration.Builder(getApplicationContext())
-                .applicationId("69a0d581afcd5eedffe508968c5e11ade47dd4a0")
+                .applicationId("[app_id]")
                 .clientKey(null)
-                .server("http://ec2-35-163-254-224.us-west-2.compute.amazonaws.com:80/parse")
+                .server("[server_url]")
                 .build());
     }
 }
